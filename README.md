@@ -127,6 +127,20 @@ pip install --upgrade PyPDF2
 - 파일이 손상되지 않았는지 확인
 - 다른 추출 방법 시도 (layout → direct → convert)
 
+### Streamlit Cloud 패키지 설치 오류
+```bash
+# 로컬에서 패키지 설치 확인
+pip install -r requirements.txt
+
+# 패키지 버전 확인
+pip list | grep -E "(PyPDF2|PyMuPDF|streamlit)"
+```
+
+**Streamlit Cloud에서 패키지 오류 시:**
+1. 앱을 다시 배포하세요
+2. requirements.txt 파일이 올바른지 확인하세요
+3. 로컬에서 테스트 후 배포하세요
+
 ## 시스템 요구사항
 
 - **Python**: 3.7 이상

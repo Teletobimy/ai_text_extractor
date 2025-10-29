@@ -13,7 +13,13 @@ if sys.platform.startswith('win'):
 # 현재 디렉토리를 Python 경로에 추가
 sys.path.insert(0, str(Path(__file__).parent))
 
-from ai_text_extractor import extract_text_from_ai, extract_text_with_layout, extract_text_from_ai_as_pdf
+# 패키지 설치 상태 확인
+try:
+    from ai_text_extractor import extract_text_from_ai, extract_text_with_layout, extract_text_from_ai_as_pdf
+    PACKAGES_AVAILABLE = True
+except ImportError as e:
+    PACKAGES_AVAILABLE = False
+    IMPORT_ERROR = str(e)
 
 def main():
     st.set_page_config(
@@ -24,6 +30,21 @@ def main():
     
     st.title("📄 AI/PDF 파일 텍스트 추출기")
     st.markdown("Adobe Illustrator (.ai) 파일과 PDF 파일에서 텍스트를 추출하는 도구입니다.")
+    
+    # 패키지 설치 상태 확인
+    if not PACKAGES_AVAILABLE:
+        st.error("❌ **필수 패키지가 설치되지 않았습니다**")
+        st.error(f"오류: {IMPORT_ERROR}")
+        st.info("""
+        **해결 방법:**
+        1. Streamlit Cloud에서 앱을 다시 배포하세요
+        2. 또는 로컬에서 실행하세요:
+        ```bash
+        pip install -r requirements.txt
+        streamlit run streamlit_app.py
+        ```
+        """)
+        return
     
     # 사이드바
     st.sidebar.header("설정")
