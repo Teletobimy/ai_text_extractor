@@ -32,15 +32,18 @@ try:
     import PyPDF2
     from PyPDF2.errors import PdfReadError
     PDF_AVAILABLE = True
-except ImportError:
+    PDF2_ERROR = None
+except ImportError as e:
     PyPDF2 = None
     PdfReadError = Exception
     PDF_AVAILABLE = False
+    PDF2_ERROR = str(e)
 
 
 def extract_text_from_ai_as_pdf(file_path):
     """
     .ai 파일을 PDF로 가정하고 텍스트를 추출합니다.
+    PyMuPDF를 우선 사용하고, 실패시 PyPDF2를 사용합니다.
     
     Args:
         file_path: .ai 파일 경로
@@ -48,8 +51,25 @@ def extract_text_from_ai_as_pdf(file_path):
     Returns:
         str: 추출된 텍스트 또는 오류 메시지
     """
+    # 먼저 PyMuPDF 시도 (더 안정적)
+    try:
+        import fitz  # PyMuPDF
+        doc = fitz.open(file_path)
+        text = ""
+        for page in doc:
+            text += page.get_text() + "\n"
+        doc.close()
+        return text.strip()
+    except Exception:
+        pass  # PyMuPDF 실패시 PyPDF2 시도
+    
+    # PyPDF2 사용 (폴백)
     if not PDF_AVAILABLE:
-        return "오류: PyPDF2가 설치되지 않았습니다. pip install PyPDF2를 실행해주세요."
+        error_msg = "오류: PDF 처리를 위한 패키지가 설치되지 않았습니다."
+        if PDF2_ERROR:
+            error_msg += f" (PyPDF2: {PDF2_ERROR})"
+        error_msg += " pip install PyPDF2 또는 pip install PyMuPDF를 실행해주세요."
+        return error_msg
     
     try:
         # 'rb' (read binary) 모드로 파일 열기

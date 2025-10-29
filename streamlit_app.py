@@ -54,6 +54,19 @@ def main():
     st.sidebar.success("✅ **AI 파일**: Adobe Illustrator")
     st.sidebar.success("✅ **PDF 파일**: 일반 PDF 문서")
     
+    # 패키지 상태 표시
+    try:
+        import fitz  # PyMuPDF
+        st.sidebar.success("✅ **PyMuPDF**: 설치됨")
+    except ImportError:
+        st.sidebar.error("❌ **PyMuPDF**: 설치 필요")
+    
+    try:
+        import PyPDF2
+        st.sidebar.success("✅ **PyPDF2**: 설치됨")
+    except ImportError:
+        st.sidebar.warning("⚠️ **PyPDF2**: 선택사항 (PyMuPDF 사용)")
+    
     # 파일 크기 제한 정보
     st.sidebar.markdown("### 📏 파일 크기 제한")
     st.sidebar.warning("**Streamlit Cloud**: 최대 200MB")
@@ -123,12 +136,11 @@ streamlit run streamlit_app.py
                         # PDF 파일 처리
                         if method == "layout":
                             text = extract_text_with_layout(tmp_path)
+                        elif method == "convert":
+                            text = "오류: PDF 파일은 convert 방법을 지원하지 않습니다. layout 또는 direct 방법을 사용하세요."
                         else:
-                            # PDF는 직접 읽기만 지원 (convert는 AI 전용)
-                            if method == "convert":
-                                text = "오류: PDF 파일은 convert 방법을 지원하지 않습니다. layout 또는 direct 방법을 사용하세요."
-                            else:
-                                text = extract_text_from_ai_as_pdf(tmp_path)
+                            # direct 또는 auto: PyMuPDF를 기본으로 사용 (PyPDF2 폴백)
+                            text = extract_text_from_ai_as_pdf(tmp_path)
                     else:
                         text = f"오류: 지원하지 않는 파일 형식입니다. (.{file_extension})"
                     
